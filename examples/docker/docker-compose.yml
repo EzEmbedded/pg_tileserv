@@ -6,7 +6,7 @@ version: "3"
 
 services:
   pg_tileserv:
-    image: pramsey/pg_tileserv:latest-alpine-3.12
+    image: scanlidocker/pg_tileserv_alpine3.12:v1
     build:
       context: ../..
       dockerfile: Dockerfile.alpine
@@ -25,7 +25,7 @@ services:
       - 7800:7800
 
   pg_tileserv_db:
-    image: postgis/postgis:13-3.0-alpine
+    image: nickblah/postgis:10.22-bullseye-postgis-3.2
 
     container_name: pg_tileserv_db
 
