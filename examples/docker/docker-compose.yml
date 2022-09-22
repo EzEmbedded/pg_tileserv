@@ -7,11 +7,6 @@ version: "3"
 services:
   pg_tileserv:
     image: scanlidocker/pg_tileserv_alpine3.12:v1
-    build:
-      context: ../..
-      dockerfile: Dockerfile.alpine
-      args:
-        VERSION: latest-alpine-3.12
 
     container_name: pg_tileserv
 
