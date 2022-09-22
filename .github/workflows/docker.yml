@@ -1,4 +1,4 @@
-name: Push To Dockerhub
+name: Build and  Push pg_tileserv To Dockerhub
 
 on:
   workflow_dispatch:
