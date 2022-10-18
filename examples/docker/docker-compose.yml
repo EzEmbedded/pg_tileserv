@@ -1,35 +1,80 @@
-# pg-tileserv Docker Compose example setup.
-#
-# To build/run, see README.md
-#
-version: "3"
-
+version: '3.0'
 services:
-  pg_tileserv:
-    image: scanlidocker/pg_tileserv_alpine3.12:v1
 
-    container_name: pg_tileserv
+    postgis:
+       # image: nickblah/postgis:10.22-bullseye-postgis-3.2
+        image: postgis/postgis:13-3.2-alpine
+        container_name: postgis
+        ports:
+            - '5432:5432'
+        environment:
+           POSTGRES_USER: postgres
+           POSTGRES_PASSWORD: postgres
+           POSTGRES_DB: database-name
+           
+        volumes:
+            - ./data:/work
+            #/var/lib/docker/volumes/docker_pg_tileserv_db/_data/
+            - pgdata:/var/lib/postgresql@13/data
+       # env_file:
+       #     - pg.env           
+            
+    pg_tileserv:
+  
+        image: scanlidocker/pg_tileserv_alpine3.12:v1
+        container_name: pg_tileserv
+        #env_file:
+        #    - pg_tileserv.env
+        environment:        
+            DATABASE_URL: postgres://postgres:postgres@postgis/database-name
+            #DATABASE_URL=postgres://{USER}:{password}@{hostname}:{port}/{database-name}
+        depends_on:
+            - postgis
+        ports:
+            - 7800:7800
+            
+            
+            
+            
 
-    env_file:
-      - pg_tileserv.env
-
-    depends_on:
-      - pg_tileserv_db
-
-    ports:
-      - 7800:7800
-
-  pg_tileserv_db:
-    image: nickblah/postgis:10.22-bullseye-postgis-3.2
-
-    container_name: pg_tileserv_db
-
-    volumes:
-      - ./data:/work
-      - pg_tileserv_db:/var/lib/postgresql/data
-
-    env_file:
-      - pg.env
+    pgadmin4:
+        image: dpage/pgadmin4:latest
+        container_name: pgadmin4
+        ports:
+            - '5050:80'
+        environment:
+            PGADMIN_DEFAULT_EMAIL: admin@126.com
+            PGADMIN_DEFAULT_PASSWORD: 222222
+        #/var/lib/docker/volumes/map_pgadmin_vol/_data/storage/admin_126.com/        
+        volumes:
+            - pgadmin_vol:/var/lib/pgadmin 
+  
+  #      links:
+  #          - postgis
 
 volumes:
-  pg_tileserv_db:
+  pgdata:
+  pgadmin_vol:
+#
+#
+#         pg-tileserv 启动过程
+# 1、docker-compose down    重建数据库，无表
+# 2、docker-compose up
+# 3、在数据库database-name中添加表（可采用备份恢复模式）
+# 4、ctrl-C
+# 5、docker-compose up
+# 
+#      QGIS添加表流程
+#  1、docker-compose up 启动数据库后，在QGID>浏览器>postgreSQL>新建连接
+# （主机：192.168.12.197； 数据库：database-name；配置>基本>用户名：postgres，
+#  密码：postgres）
+#  2、导入表  QGIS>数据库>数据库管理器>数据源>postGIS>database-name>public   
+#      从数据库管理器上面的工具栏里点击“导入层或文件 ”   选择需要导入的shp文件
+#
+#      QGIS需要安装的插件  DB Manager,QuickOSM,QuickMapServers,
+# 
+# # 
+# 
+# 
+# 
+
